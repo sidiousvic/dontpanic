@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "declaration": true,
+    "module": "CommonJS",
+    "outDir": "lib",
+    "lib": ["es2020"],
+    "strict": true,
+    "types": ["node", "jest"],
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["src", "spec"],
+  "exclude": ["lib", "node_modules"],
+  "ts-node": { "files": true }
+}
