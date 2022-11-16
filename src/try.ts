@@ -40,11 +40,11 @@ export function Try<Su, Fa, St>(
         ? value.status
         : status
       : [
-          value instanceof Date && !isFinite(value.getTime()),
-          typeof value === 'bigint' && isNaN(Number(value)),
-          typeof value === 'number' && isNaN(value),
-          value instanceof Error,
-          !value,
+          v instanceof Date && !isFinite(v.getTime()),
+          typeof v === 'bigint' && isNaN(Number(v)),
+          typeof v === 'number' && isNaN(v),
+          v instanceof Error,
+          !v,
         ].some(Boolean)
       ? Status.Failed
       : Status.Succeeded;
@@ -69,17 +69,17 @@ export function Try<Su, Fa, St>(
         Outcome<Future<Success<〱<Su>, St>>, Future<Failure<〱<Fa>, St>>>
       >;
     },
-    onSuccess<M>(fn: (v: Success<〱<Su>, St>) => M) {
+    onSuccess<M>(fn: (v: Success<〱<Su>, St>) => 〱<M>) {
       return Try(
-        s === Ok ? (fn(v as Success<〱<Su>, St>) as 〱<M>) : (v as 〱<Fa>),
+        s === Ok ? fn(v as Success<〱<Su>, St>) : (v as 〱<Fa>),
         s
-      );
+      ) as Outcome<M, Failure<〱<Fa>, St>>;
     },
-    onFailure<M>(fn: (v: Failure<〱<Fa>, St>) => M) {
+    onFailure<M>(fn: (v: Failure<〱<Fa>, St>) => 〱<M>) {
       return Try(
-        s === Failed ? (fn(v as Failure<〱<Fa>, St>) as 〱<M>) : (v as 〱<Su>),
+        s === Failed ? fn(v as Failure<〱<Fa>, St>) : (v as 〱<Su>),
         s
-      );
+      ) as Outcome<Success<〱<Su>, St>, M>;
     },
   };
 
