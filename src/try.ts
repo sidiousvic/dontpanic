@@ -28,9 +28,17 @@ export function Try<Su, Fa, St>(
     }, Try([] as never)) as Outcome<Success<〱<Su>, St>, Failure<〱<Fa>, St>>;
   }
 
+  const v = isOutcome<Su, Fa>(value)
+    ? value.status === Ok
+      ? value.success
+      : value.failure
+    : value;
+
   const s =
     status !== undefined
-      ? status
+      ? isOutcome<Su, Fa>(value)
+        ? value.status
+        : status
       : [
           value instanceof Date && !isFinite(value.getTime()),
           typeof value === 'bigint' && isNaN(Number(value)),
@@ -43,41 +51,33 @@ export function Try<Su, Fa, St>(
 
   const core = {
     failure() {
-      if (s === Failed) return value as Fa as Failure<〱<Fa>, St>;
+      if (s === Failed) return v as Fa as Failure<〱<Fa>, St>;
       throw new Error();
     },
     success() {
-      if (s === Ok) return value as Su as Success<〱<Su>, St>;
+      if (s === Ok) return v as Su as Success<〱<Su>, St>;
       throw new Error();
     },
     future() {
       return (
-        value instanceof Promise
-          ? value
+        v instanceof Promise
+          ? v
               .then(awaited => Try(awaited as 〱<Su> | 〱<Fa>))
               .catch(e => Try(toError(e)))
-          : Promise.resolve(Try(value, s))
+          : Promise.resolve(Try(v as 〱<Su>, s))
       ) as Promise<
         Outcome<Future<Success<〱<Su>, St>>, Future<Failure<〱<Fa>, St>>>
       >;
     },
-    onSuccess<M>(fn: (value: Success<〱<Su>, St>) => M) {
-      if (isOutcome<Su, Fa>(fn(null as never)))
-        return s === Ok ? fn(value as Success<〱<Su>, St>) : Try(value, s);
+    onSuccess<M>(fn: (v: Success<〱<Su>, St>) => M) {
       return Try(
-        s === Ok
-          ? (fn(value as Success<〱<Su>, St>) as 〱<M>)
-          : (value as 〱<Fa>),
+        s === Ok ? (fn(v as Success<〱<Su>, St>) as 〱<M>) : (v as 〱<Fa>),
         s
       );
     },
-    onFailure<M>(fn: (value: Failure<〱<Fa>, St>) => M) {
-      if (isOutcome<Su, Fa>(fn(null as never)))
-        return s === Failed ? fn(value as Failure<〱<Fa>, St>) : Try(value, s);
+    onFailure<M>(fn: (v: Failure<〱<Fa>, St>) => M) {
       return Try(
-        s === Failed
-          ? (fn(value as Failure<〱<Fa>, St>) as 〱<M>)
-          : (value as 〱<Su>),
+        s === Failed ? (fn(v as Failure<〱<Fa>, St>) as 〱<M>) : (v as 〱<Su>),
         s
       );
     },
