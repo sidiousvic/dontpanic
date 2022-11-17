@@ -5,16 +5,6 @@ describe('Integrated usage', () => {
   it('should handle invalid dates as failures', () =>
     expect(Try(new Date('💩')).status).toBe(Failed));
 
-  it('should unwrap a list of outcomes into a list of successes', () =>
-    expect(Try([Try(1), Try(2), Try(3)])).toMatchObject({
-      success: [1, 2, 3],
-    }));
-
-  it('should unwrap a list of outcomes into the first failure', () =>
-    expect(Try([Try(1), Try(0), Try(3)])).toMatchObject({
-      failure: 0,
-    }));
-
   it('should be able to chain operations', () => {
     expect(
       Succeed(25)
@@ -33,8 +23,7 @@ describe('Integrated usage', () => {
     ).toStrictEqual(toError(Math.log(0)));
   });
 
-  it.only('should handle arrays with nullish values', () => {
-    //
+  it('should handle arrays with nullish values', () => {
     Try([undefined]);
   });
 
@@ -117,6 +106,18 @@ describe('Getters', () => {
           failure: new Error('0'),
         }));
     });
+  });
+
+  describe('.unify', () => {
+    it('should unwrap a list of outcomes into a list of successes', () =>
+      expect(Try([Try(1), Try(2), Try(3)]).unify).toMatchObject({
+        success: [1, 2, 3],
+      }));
+
+    it('should unwrap a list of outcomes into the first failure', () =>
+      expect(Try([Try(1), Try(0), Try(3)]).unify).toMatchObject({
+        failure: 0,
+      }));
   });
 });
 

@@ -29,9 +29,14 @@ export type Outcome<Su, Fa> = {
   failure: Fa;
   success: Su;
   future: Promise<Outcome<Future<Su>, Future<Fa>>>;
+  unify: Flat<Unified<Outcome<Su, Fa>>>;
   onSuccess<M>(fn: (value: Su) => M): Outcome<M, Fa>;
   onFailure<M>(fn: (value: Fa) => M): Outcome<Su, M>;
 };
+
+export type Unified<O> = O extends Array<infer A> ? A : O;
+
+export type Flat<U> = U extends Outcome<infer S, infer F> ? S | F : U;
 
 /**
 
@@ -39,15 +44,15 @@ export type Outcome<Su, Fa> = {
  */
 export type Success<U, St> = St extends Status.Failed
   ? never
-  : U extends Falsey | Error
+  : Flat<U> extends Falsey | Error
   ? never
-  : U;
+  : Flat<U>;
 
 /**
  *  Represents a failed outcome.
  */
 export type Failure<U, St> = St extends Status.Succeeded
   ? never
-  : U extends Falsey | Error
-  ? U
+  : Flat<U> extends Falsey | Error
+  ? Flat<U>
   : never;

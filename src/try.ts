@@ -1,4 +1,4 @@
-import { Status, Outcome, 〱, Future, Failure, Success } from './types';
+import { Status, Outcome, 〱, Future, Failure, Success, Flat } from './types';
 import { isOutcome, toError } from './utils';
 
 /**
@@ -8,22 +8,6 @@ export function Try<Su, Fa, St>(
   value: 〱<Su> | 〱<Fa>,
   status?: Status
 ): Outcome<Success<〱<Su>, St>, Failure<〱<Fa>, St>> {
-  if (Array.isArray(value) && value.length && value.every(v => isOutcome(v))) {
-    return (value as Outcome<unknown, unknown>[]).reduce<
-      Outcome<unknown, unknown>
-    >((unified, outcome) => {
-      return unified.status === Ok
-        ? Try(
-            [
-              ...(unified.success as 〱<Success<unknown, unknown>>[]),
-              outcome.status === Ok ? outcome.success : outcome.failure,
-            ] as 〱<Success<unknown, unknown>>,
-            outcome.status
-          )
-        : Try((unified.failure as unknown[]).pop() as 〱<Su> | 〱<Fa>);
-    }, Try([] as never)) as Outcome<Success<〱<Su>, St>, Failure<〱<Fa>, St>>;
-  }
-
   const v = isOutcome<Su, Fa>(value)
     ? value.status === Ok
       ? value.success
@@ -77,9 +61,26 @@ export function Try<Su, Fa, St>(
         s
       ) as Outcome<Success<〱<Su>, St>, M>;
     },
+    unify() {
+      if (Array.isArray(v) && v.length && v.every(v => isOutcome(v))) {
+        return (v as Outcome<unknown, unknown>[]).reduce<
+          Outcome<unknown, unknown>
+        >((unified, outcome) => {
+          return unified.status === Ok
+            ? Try(
+                [
+                  ...(unified.success as 〱<Success<Su, St>>[]),
+                  outcome.status === Ok ? outcome.success : outcome.failure,
+                ] as 〱<Success<Su, St>>,
+                outcome.status
+              )
+            : Try((unified.failure as 〱<Failure<Fa, St>>[]).pop() as never);
+        }, Try([] as never)) as Success<〱<Su>, St> | Failure<〱<Fa>, St>;
+      }
+    },
   };
 
-  const { failure, success, future, onSuccess, onFailure } = core;
+  const { failure, success, future, unify, onSuccess, onFailure } = core;
 
   const outcome = {
     𝓺: true,
@@ -92,6 +93,9 @@ export function Try<Su, Fa, St>(
     },
     get future() {
       return future();
+    },
+    get unify() {
+      return unify();
     },
     onSuccess,
     onFailure,
