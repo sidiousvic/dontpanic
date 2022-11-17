@@ -8,11 +8,7 @@ export function Try<Su, Fa, St>(
   value: 〱<Su> | 〱<Fa>,
   status?: Status
 ): Outcome<Success<〱<Su>, St>, Failure<〱<Fa>, St>> {
-  if (
-    Array.isArray(value) &&
-    value.length &&
-    value.every(v => (v as Outcome<unknown, unknown>).status !== undefined)
-  ) {
+  if (Array.isArray(value) && value.length && value.every(v => isOutcome(v))) {
     return (value as Outcome<unknown, unknown>[]).reduce<
       Outcome<unknown, unknown>
     >((unified, outcome) => {

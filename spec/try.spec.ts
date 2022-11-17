@@ -33,6 +33,11 @@ describe('Integrated usage', () => {
     ).toStrictEqual(toError(Math.log(0)));
   });
 
+  it.only('should handle arrays with nullish values', () => {
+    //
+    Try([undefined]);
+  });
+
   it('should bind (flatMap) operations', () => {
     expect(
       Fail(0)
