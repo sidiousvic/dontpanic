@@ -28,7 +28,7 @@ export type Outcome<Su, Fa> = {
   status: Status;
   failure: Fa;
   success: Su;
-  future: Promise<Outcome<Future<Su>, Future<Fa> | Error>>;
+  future: Promise<Outcome<Future<Su>, Future<Fa> | RejectionError>>;
   unify: Outcome<
     Su | Fa extends Array<Outcome<infer S, infer void_F>> ? S[] : Su[],
     Su | Fa extends Array<Outcome<infer void_S, infer F>> ? F : Fa
@@ -63,3 +63,14 @@ export type Failure<U, St> = St extends Status.Succeeded
   : Flat<U> extends Falsey | Error
   ? Flat<U>
   : never;
+
+/**
+ * Represents a promise rejection. The caught value is serialized as the message of a new error object.
+ */
+export class RejectionError extends Error {
+  name = 'RejectionError';
+
+  constructor(e: unknown) {
+    super(String(e));
+  }
+}
