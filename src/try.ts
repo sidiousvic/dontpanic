@@ -42,7 +42,7 @@ export function Try<Su, Fa, St>(
       return v instanceof Promise
         ? v
             .then(awaited => Try(awaited as 〱<Su>, Status.Succeeded))
-            .catch(e => Try(toError(e), Status.Failed))
+            .catch(e => Try(toError(e) as Error | 〱<Fa>, Status.Failed))
         : Promise.resolve(Try(v as 〱<Su> | 〱<Fa>, s));
     },
     onSuccess<M>(fn: (v: Success<〱<Su>, St>) => 〱<M>) {

@@ -28,7 +28,7 @@ export type Outcome<Su, Fa> = {
   status: Status;
   failure: Fa;
   success: Su;
-  future: Promise<Outcome<Future<Su>, Error>>;
+  future: Promise<Outcome<Future<Su>, Future<Fa> | Error>>;
   unify: Outcome<
     Su | Fa extends Array<Outcome<infer S, infer void_F>> ? S[] : Su[],
     Su | Fa extends Array<Outcome<infer void_S, infer F>> ? F : Fa
