@@ -1,4 +1,4 @@
-import { Status, Outcome, 〱, Future, Failure, Success, Flat } from './types';
+import { Status, Outcome, 〱, Future, Failure, Success } from './types';
 import { isOutcome, toError } from './utils';
 
 /**
@@ -39,15 +39,11 @@ export function Try<Su, Fa, St>(
       throw new Error();
     },
     future() {
-      return (
-        v instanceof Promise
-          ? v
-              .then(awaited => Try(awaited as 〱<Su> | 〱<Fa>))
-              .catch(e => Try(toError(e)))
-          : Promise.resolve(Try(v as 〱<Su>, s))
-      ) as Promise<
-        Outcome<Future<Success<〱<Su>, St>>, Future<Failure<〱<Fa>, St>>>
-      >;
+      return v instanceof Promise
+        ? v
+            .then(awaited => Try(awaited as 〱<Su>, Status.Succeeded))
+            .catch(e => Try(toError(e), Status.Failed))
+        : Promise.resolve(Try(v as 〱<Su> | 〱<Fa>, s));
     },
     onSuccess<M>(fn: (v: Success<〱<Su>, St>) => 〱<M>) {
       return Try(

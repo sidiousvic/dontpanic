@@ -1,4 +1,4 @@
-import { Fail, Failed, Ok, Succeed, Try } from '../src';
+import { Fail, Failed, Ok, Outcome, Succeed, Try } from '../src';
 import { falsyValues, toError, truthyValues } from '../src/utils';
 
 describe('Integrated usage', () => {
@@ -23,9 +23,8 @@ describe('Integrated usage', () => {
     ).toStrictEqual(toError(Math.log(0)));
   });
 
-  it('should handle arrays with nullish values', () => {
-    Try([undefined]);
-  });
+  it('should handle arrays with nullish values', () =>
+    expect(() => Try([undefined])).not.toThrow());
 
   it('should bind (flatMap) operations', () => {
     expect(
@@ -101,10 +100,16 @@ describe('Getters', () => {
           success: 1,
         }));
 
-      it('should morph Promise.resolve(0) into Failed<Error("1")>', async () =>
+      it('should morph Promise.resolve(0) into Failed<Error<"0">>', async () =>
         expect(await Try(Promise.reject(0)).future).toMatchObject({
           failure: new Error('0'),
         }));
+    });
+
+    it('should type rejected promise values as errors', () => {
+      const void_: Promise<Outcome<number, Error>> = Try(
+        Promise.reject(1)
+      ).future;
     });
   });
 
