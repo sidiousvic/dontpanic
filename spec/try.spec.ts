@@ -107,9 +107,9 @@ describe('Getters', () => {
     });
 
     it('should type rejected promise values as errors', () => {
-      const void_: Promise<Outcome<number, Error>> = Try(
-        Promise.reject(1)
-      ).future;
+      const void_: Promise<Outcome<number, Error | 'Error'>> = Try(0)
+        .onFailure(() => 'Error' as const)
+        .onSuccess(() => Promise.resolve(1)).future;
     });
   });
 
