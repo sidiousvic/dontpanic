@@ -30,8 +30,8 @@ export type Outcome<Su, Fa> = {
   success: Su;
   future: Promise<Outcome<Future<Su>, Future<Fa>>>;
   unify: Outcome<
-    Su | Fa extends Array<Outcome<infer S, infer F>> ? S : Su,
-    Su | Fa extends Array<Outcome<infer S, infer F>> ? F : Fa
+    Su | Fa extends Array<Outcome<infer S, infer void_F>> ? S[] : Su[],
+    Su | Fa extends Array<Outcome<infer void_S, infer F>> ? F : Fa
   >;
   onSuccess<M>(fn: (value: Su) => M): Outcome<M, Fa>;
   onFailure<M>(fn: (value: Fa) => M): Outcome<Su, M>;
