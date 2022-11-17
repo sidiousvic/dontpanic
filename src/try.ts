@@ -72,7 +72,11 @@ export function Try<Su, Fa, St>(
                 ] as 〱<Success<Su, St>>,
                 outcome.status
               )
-            : Try((unified.failure as 〱<Failure<Fa, St>>[]).pop() as never);
+            : Try(
+                (Array.isArray(unified.failure)
+                  ? unified.failure.pop()
+                  : unified.failure) as never
+              );
         }, Try([] as never)) as Success<〱<Su>, St> | Failure<〱<Fa>, St>;
       }
     },
