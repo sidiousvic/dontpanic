@@ -29,7 +29,7 @@ export type Outcome<Su, Fa> = {
   failure: Fa;
   success: Su;
   future: Promise<Outcome<Future<Su>, Future<Fa>>>;
-  unify: Flat<Unified<Outcome<Su, Fa>>>;
+  unify: Outcome<Flat<Unified<Su>>, Flat<Unified<Fa>>>;
   onSuccess<M>(fn: (value: Su) => M): Outcome<M, Fa>;
   onFailure<M>(fn: (value: Fa) => M): Outcome<Su, M>;
 };
