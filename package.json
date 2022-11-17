@@ -1,6 +1,6 @@
 {
   "name": "@sidiousware/dontpanic",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "I see that you are having a difficult time, let me help you.",
   "types": "lib",
   "main": "lib",
