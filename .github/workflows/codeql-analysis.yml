@@ -3,8 +3,12 @@ name: 'CodeQL'
 on:
   push:
     branches: [prod]
+    paths-ignore:
+      - 'spec/**'
   pull_request:
     branches: [prod]
+    paths-ignore:
+      - 'spec/**'
   workflow_call:
   schedule:
     #        ┌───────────── minute (0 - 59)
