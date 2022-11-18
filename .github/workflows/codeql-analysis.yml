@@ -3,12 +3,8 @@ name: 'CodeQL'
 on:
   push:
     branches: [prod]
-    paths-ignore:
-      - 'spec/**'
   pull_request:
     branches: [prod]
-    paths-ignore:
-      - 'spec/**'
   workflow_call:
   schedule:
     #        ┌───────────── minute (0 - 59)
@@ -38,6 +34,8 @@ jobs:
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
+        with:
+          config-file: ./.github/codeql-config.yml
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
