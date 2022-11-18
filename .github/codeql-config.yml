@@ -1,0 +1,7 @@
+name: 'CodeQL Config'
+
+paths:
+  - src
+paths-ignore:
+  - src/node_modules
+  - spec/**
