@@ -81,10 +81,6 @@ Flatten your error handling.
 npm install @sidiousware/dontpanic
 ```
 
-## Usage
-
-🅱️ This package is in beta.
-
 [build-img]: https://github.com/sidiousvic/dontpanic/actions/workflows/release.yml/badge.svg?branch=main
 [build-url]: https://github.com/sidiousvic/dontpanic/actions/workflows/release.yml?branch=main
 [npm-img]: https://img.shields.io/npm/v/dontpanic
