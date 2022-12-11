@@ -101,7 +101,7 @@ describe('Getters', () => {
         }));
 
       it('should morph Promise.resolve(0) into Failed<Error<"0">>', async () =>
-        expect(await Try(Promise.reject(0)).future).toMatchObject({
+        expect(await Try(Promise.reject(new Error('0'))).future).toMatchObject({
           failure: new Error('0'),
         }));
     });
