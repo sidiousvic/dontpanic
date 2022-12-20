@@ -1,6 +1,6 @@
 import { DontPanic } from '../src';
 
-describe('Integrated usage', () => {
+describe('DontPanic', () => {
   it('should morph a throwable into a non-throwable that returns a outcome', () =>
     expect(
       DontPanic(() => {
