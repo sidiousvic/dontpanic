@@ -1,13 +1,21 @@
-import { Status, Outcome, 〱, Failure, Success } from './types';
+import { Status, Outcome, Lit, Failure, Success } from './types';
 import { isOutcome } from './utils';
 
 /**
- * Morphs values into `Outcome`s.
+ * Morphs a value into an {@link https://github.com/sidiousvic/dontpanic/blob/fcbb0045538033b7dead627998ee67e9f3eddc1c/src/types.ts#L27 Outcome}.
+ *
+ * Falsy values, invalid dates, NaNs and Error objects will result in a failure. All else is considered a success.
+ *
+ * Takes an optional `status` parameter which will define the status of the Outcome.
+ *
+ * If the value is already an Outcome, consumes the inner value of the Outcome.
+ * {@link https://github.com/sidiousvic/dontpanic/blob/31a59fe0399c79269d63d5ac1c86bee7c89bed80/spec/try.spec.ts Read the spec here.}
+ *
  */
 export function Try<Su, Fa, St>(
-  value: 〱<Su> | 〱<Fa>,
+  value: Lit<Su> | Lit<Fa>,
   status?: Status
-): Outcome<Success<〱<Su>, St>, Failure<〱<Fa>, St>> {
+): Outcome<Success<Lit<Su>, St>, Failure<Lit<Fa>, St>> {
   const v = isOutcome<Su, Fa>(value)
     ? value.status === Ok
       ? value.success
@@ -31,31 +39,31 @@ export function Try<Su, Fa, St>(
 
   const core = {
     failure() {
-      if (s === Failed) return v as Fa as Failure<〱<Fa>, St>;
+      if (s === Failed) return v as Fa as Failure<Lit<Fa>, St>;
       throw new Error();
     },
     success() {
-      if (s === Ok) return v as Su as Success<〱<Su>, St>;
+      if (s === Ok) return v as Su as Success<Lit<Su>, St>;
       throw new Error();
     },
     future() {
       return v instanceof Promise
         ? v
-            .then(awaited => Try(awaited as 〱<Su>, Status.Succeeded))
-            .catch(e => Try(e as Error | 〱<Fa>, Status.Failed))
-        : Promise.resolve(Try(v as 〱<Su> | 〱<Fa>, s));
+            .then(awaited => Try(awaited as Lit<Su>, Status.Succeeded))
+            .catch(t => Try(t as never, Status.Failed))
+        : Promise.resolve(Try(v as Lit<Su>, s));
     },
-    onSuccess<M>(fn: (v: Success<〱<Su>, St>) => 〱<M>) {
+    onSuccess<M>(fn: (v: Success<Lit<Su>, St>) => Lit<M>) {
       return Try(
-        s === Ok ? fn(v as Success<〱<Su>, St>) : (v as 〱<Fa>),
+        s === Ok ? fn(v as Success<Lit<Su>, St>) : (v as Lit<Fa>),
         s
-      ) as Outcome<M, Failure<〱<Fa>, St>>;
+      ) as Outcome<M, Failure<Lit<Fa>, St>>;
     },
-    onFailure<M>(fn: (v: Failure<〱<Fa>, St>) => 〱<M>) {
+    onFailure<M>(fn: (v: Failure<Lit<Fa>, St>) => Lit<M>) {
       return Try(
-        s === Failed ? fn(v as Failure<〱<Fa>, St>) : (v as 〱<Su>),
+        s === Failed ? fn(v as Failure<Lit<Fa>, St>) : (v as Lit<Su>),
         s
-      ) as Outcome<Success<〱<Su>, St>, M>;
+      ) as Outcome<Success<Lit<Su>, St>, M>;
     },
     unify() {
       if (Array.isArray(v) && v.length && v.every(v => isOutcome(v))) {
@@ -65,9 +73,9 @@ export function Try<Su, Fa, St>(
           return unified.status === Ok
             ? Try(
                 [
-                  ...(unified.success as 〱<Success<Su, St>>[]),
+                  ...(unified.success as Lit<Success<Su, St>>[]),
                   outcome.status === Ok ? outcome.success : outcome.failure,
-                ] as 〱<Success<Su, St>>,
+                ] as Lit<Success<Su, St>>,
                 outcome.status
               )
             : Try(
@@ -75,7 +83,7 @@ export function Try<Su, Fa, St>(
                   ? unified.failure.pop()
                   : unified.failure) as never
               );
-        }, Try([] as never)) as Success<〱<Su>, St> | Failure<〱<Fa>, St>;
+        }, Try([] as never)) as Success<Lit<Su>, St> | Failure<Lit<Fa>, St>;
       }
     },
   };
@@ -101,15 +109,15 @@ export function Try<Su, Fa, St>(
     onFailure,
   };
 
-  return outcome as Outcome<Success<〱<Su>, St>, Failure<〱<Fa>, St>>;
+  return outcome as Outcome<Success<Lit<Su>, St>, Failure<Lit<Fa>, St>>;
 }
 
-export function Succeed<Su>(value: 〱<Su>): Outcome<Su, never> {
-  return Try(value as 〱<Success<Su, never>>, Ok);
+export function Succeed<Su>(value: Lit<Su>): Outcome<Su, never> {
+  return Try(value as Lit<Success<Su, never>>, Ok);
 }
 
-export function Fail<Fa>(value: 〱<Fa>): Outcome<never, Fa> {
-  return Try(value as 〱<Failure<Fa, never>>, Failed);
+export function Fail<Fa>(value: Lit<Fa>): Outcome<never, Fa> {
+  return Try(value as Lit<Failure<Fa, never>>, Failed);
 }
 export const Ok = Status.Succeeded;
 export const Failed = Status.Failed;
